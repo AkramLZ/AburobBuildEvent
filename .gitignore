@@ -1,0 +1,38 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Packed files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# JVM Crash Logs
+hss_err_pid*
+
+# IDEA Files
+.idea
+
+# target
+**/target/
+
+# iml files
+**/*.iml
+
+# out file
+**/out/
+
+# Gradle files
+.gradle
+**/build/
+gradle-app.setting
+.gradletasknamecache
+
+# Avoid ignoring gradle wrapper jar file
+!gradle-wrapper.jar

@@ -1,0 +1,8 @@
+name: BuildEvent
+author: AkramL
+version: 1.0
+main: dev.akraml.aburob.BuildEventPlugin
+api-version: 1.13
+commands:
+  rate:
+  start:
