@@ -3,6 +3,7 @@ package dev.akraml.aburob;
 import com.plotsquared.core.events.TeleportCause;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
+import com.plotsquared.core.util.query.PlotQuery;
 import dev.akraml.aburob.commands.RateCommand;
 import dev.akraml.aburob.data.PlayerData;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +23,7 @@ public class EventTickRunnable implements Runnable {
     private final BuildEventPlugin plugin;
     public static long TICK = 0;
     public static int TIME = 3600;
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.##");
 
     @Override
     public void run() {
@@ -61,7 +64,7 @@ public class EventTickRunnable implements Runnable {
                             c("&f Online players: &e" + Bukkit.getOnlinePlayers().size()),
                             c(""),
                             c("&6&lROUND INFO"),
-                            c("&f Your rate: &e" + playerData.getRate()),
+                            c("&f Your rate: &e" + DECIMAL_FORMAT.format(playerData.getRate())),
                             c(""),
                             c("&ediscord.gg/aburob")
                     );
@@ -76,12 +79,10 @@ public class EventTickRunnable implements Runnable {
                         toVote.add(playerData);
                     }
                     RateCommand.CURRENT_VOTING = toVote.get(0);
-                    Plot plot = Plot.getPlotFromString(
-                            PlotPlayer.from(Bukkit.getOnlinePlayers().stream().findFirst().get()),
-                            RateCommand.CURRENT_VOTING.getName(),
-                            false
-                    );
-                    Player randomPlayer = Bukkit.getOnlinePlayers().stream().findFirst().get();
+                    Plot plot = PlotQuery.newQuery()
+                            .thatPasses(plot1 -> plot1.getOwner() != null
+                                    && plot1.getOwner().equals(RateCommand.CURRENT_VOTING.getUuid()))
+                            .asList().stream().findFirst().orElse(null);
                     while (plot == null) {
                         if (toVote.size() == 0) {
                             Bukkit.getLogger().severe("an error occurred, stopping...");
@@ -90,11 +91,10 @@ public class EventTickRunnable implements Runnable {
                         }
                         toVote.remove(0);
                         RateCommand.CURRENT_VOTING = toVote.get(0);
-                        plot = Plot.getPlotFromString(
-                                PlotPlayer.from(randomPlayer),
-                                RateCommand.CURRENT_VOTING.getName(),
-                                false
-                        );
+                        plot = PlotQuery.newQuery()
+                                .thatPasses(plot1 -> plot1.getOwner() != null
+                                        && plot1.getOwner().equals(RateCommand.CURRENT_VOTING.getUuid()))
+                                .asList().stream().findFirst().orElse(null);
                     }
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         PlotPlayer<?> plotPlayer = PlotPlayer.from(player);
@@ -103,7 +103,7 @@ public class EventTickRunnable implements Runnable {
                     for (final PlayerData judge : plugin.getDataManager().getRaters().values()) {
                         judge.getRateProfile().getRateQueue().addAll(toVote);
                     }
-                    Bukkit.broadcastMessage(ChatColor.YELLOW + "&eRating " + RateCommand.CURRENT_VOTING.getName());
+                    Bukkit.broadcastMessage(ChatColor.YELLOW + "Rating " + RateCommand.CURRENT_VOTING.getName());
                 }
             }
         }
@@ -126,14 +126,15 @@ public class EventTickRunnable implements Runnable {
                             c("&f Online players: &e" + Bukkit.getOnlinePlayers().size()),
                             c(""),
                             c("&6&lROUND INFO"),
-                            c("&f Your rate: &e" + playerData.getRate()),
-                            c("&f Plot rate: &e" + (targetData == null ? "-" : targetData.getRate())),
+                            c("&f Your rate: &e" + DECIMAL_FORMAT.format(playerData.getRate())),
+                            c("&f Plot rate: &e" + (targetData == null ? "-"
+                                    : DECIMAL_FORMAT.format(targetData.getRate()))),
                             c(""),
                             c("&ediscord.gg/aburob")
                     );
                 }
             }
-            if (plugin.getEventState() == EventState.VOTING) {
+            if (plugin.getEventState() == EventState.ENDING) {
                 if (TICK % 20 == 0) {
                     for (final Player player : Bukkit.getOnlinePlayers()) {
                         final PlayerData playerData = plugin.getDataManager().getData(player.getUniqueId());

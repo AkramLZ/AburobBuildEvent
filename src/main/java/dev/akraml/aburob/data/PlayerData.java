@@ -5,7 +5,6 @@ import fr.mrmicky.fastboard.FastBoard;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class PlayerData {
@@ -50,15 +49,9 @@ public class PlayerData {
 
     public double getRate() {
         double rateVal = 0;
-        for (Rate rate : rateMap.values()) {
-            rateVal += rate.getRate();
+        if (rateMap.size() == 0) {
+            return 0;
         }
-        rateVal /= rateMap.size();
-        return Double.parseDouble(new DecimalFormat("##.##").format(rateVal));
-    }
-
-    public double getRateAccurate() {
-        double rateVal = 0;
         for (Rate rate : rateMap.values()) {
             rateVal += rate.getRate();
         }
