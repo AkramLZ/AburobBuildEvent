@@ -1,5 +1,6 @@
 package dev.akraml.aburob;
 
+import dev.akraml.aburob.commands.EndCommand;
 import dev.akraml.aburob.commands.RateCommand;
 import dev.akraml.aburob.commands.StartCommand;
 import dev.akraml.aburob.data.DataManager;
@@ -33,6 +34,7 @@ public class BuildEventPlugin extends JavaPlugin {
         getServer().getScheduler().runTaskTimerAsynchronously(this, new EventTickRunnable(this), 0L, 1L);
         Objects.requireNonNull(getCommand("rate")).setExecutor(new RateCommand(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartCommand(this));
+        Objects.requireNonNull(getCommand("end")).setExecutor(new EndCommand(this));
     }
 
 }
